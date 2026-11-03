@@ -59,3 +59,7 @@ __pycache__/
 .DS_Store
 Thumbs.db
 *.log
+
+# ===== 交叉编译产物（ARM 可执行文件，无扩展名）=====
+技术文档/FPGA/C5MB_GHRD_cnn/deploy/fpga_hps/pl_sort_gateway
+技术文档/FPGA/C5MB_GHRD_cnn/deploy/fpga_hps/pure_cnn_gateway

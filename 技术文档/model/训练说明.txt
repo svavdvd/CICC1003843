@@ -1,0 +1,127 @@
+集创赛初赛验收
+-----------------------文件说明-------------------------
+
+alumaium:找到412张金属表面缺陷图片，来源百度飞浆上公开数据集，链接https://aistudio.baidu.com/datasetdetail/138403
+issdd-dataset-voc:官方与外来数据集(alumium)混合而来的数据集
+PaddleDection:百度飞浆训练框架2.1.2
+PaddleDetetion:替换文件与op文件
+vdl_log:训练过程中产生的日志
+output_inference:导出的模型数据
+output:里面是最优模型与最终模型权重
+ssd_mobilenet_v1_opt.nb：模型转出来的nb文件
+train.py：训练代码
+
+
+
+-----------------------训练数据说明-------------------------
+
+数据集来源：由官方提供的241张与团队在百度飞浆平台找到的412张金属表面缺陷图片组成
+数据集标注是在labelimg完成的标注了zheng_chang，zang_wu，zhe_zhou，zhen_kong（在ssd编译会将zheng_chang标志跳过）
+数据划分：训练集（train） 验证集（val） 测试集（test）
+验证集与测试集从训练集随机抽取，其中验证集占训练集10%，测试集占训练集5%
+最后将数据集打包zip文件
+
+-----------------------训练流程说明-------------------------
+一，环境配置
+1 打开百度飞浆平台星河社区 ai studio在左下角点击项目——>创建项目——>notebook,输入项目名称（随便起），高级配置里项目框架选PaddlePaddle2.1.2,最后创建。
+
+2点击进入项目，选择想要的环境。点击“+”选择启动终端
+在终端输入以下内容进行依赖安装
+git clone https://gitee.com/paddlepaddle/PaddleDetection.git -b release/2.2
+
+cd PaddleDetection/
+
+pip install --upgrade pip
+
+pip install paddleslim==2.1.1
+
+sed -i -e 's/sklearn/scikit-learn/g' requirements.txt
+
+pip install -r requirements.txt
+
+python setup.py install
+
+pip install pycocotools
+
+pip install lap
+
+pip install --user --upgrade pyarrow==11.0.0
+输入完成后，检查个安装是否因为网络波动等原因安装失败，若有重新输入受影响的代码
+
+3上传数据集:双击左侧目录树逐级进入目录“PaddleDetection/dataset ”，选择数据集准备过程中最后打包的数据集进行上传，或选择需要训练的数据集上传并解压。
+进入“PaddleDetection/configs/datasets/ ”，修改“voc.yml”配置文件参数，修改后执行“ctl+s ”保存终端操作如下
+cd /home/aistudio/PaddleDetection/configs/datasets/ 
+
+sed -i -e 's/20/5/g' voc.yml
+
+sed -i -e 's/voc/isdd-dataset-voc/g' voc.yml
+
+4量化训练文件替换：训练量化模型需要替换3个py脚本：
+a. PaddleDetection/ppdet/modeling/layers.py
+b. PaddleDetection/ppdet/modeling/heads/ssd_head.py
+c. PaddleDetection/ppdet/slim/quant.py
+
+5.训练配置参数调整：打开optimizer_120e.yml路径如下"\PaddleDetection\configs\ssd\_base_\optimizer_120e.yml"并根据需要修改内容这里展示我们团队的配置
+epoch: 500
+
+LearningRate:
+  base_lr: 0.002
+  schedulers:
+  - !PiecewiseDecay
+    milestones: [150, 250, 350, 420]
+    gamma: [0.7, 0.5, 0.4, 0.1]
+    use_warmup: false
+
+OptimizerBuilder:
+  optimizer:
+    momentum: 0.9
+    type: RMSProp
+  regularizer:
+    factor: 0.001
+    type: L2
+
+二、模型训练
+1、训练模型的运行：进入 PaddleDetection 目录，执行如下命令进行训练
+cd /home/aistudio/PaddleDetection
+
+python tools/train.py -c configs/ssd/ssd_mobilenet_v1_300_120e_voc.yml --slim_config configs/slim/quant/ssd_mobilenet_v1_qat.yml --eval --use_vdl=True --vdl_log_dir=vdl_log 2>&1 | tee train_log.txt
+输入完后模型将正常启动等待模型训练完成
+2,若模型训练收到打断可输入以下命令继续训练
+cd /home/aistudio/PaddleDetection
+
+python tools/train.py -c configs/ssd/ssd_mobilenet_v1_300_120e_voc.yml --slim_config configs/slim/quant/ssd_mobilenet_v1_qat.yml -r output/ssd_mobilenet_v1_qat/best_model --eval --use_vdl=True --vdl_log_dir=vdl_log 2>&1 | tee train_log.txt
+
+3模型预测：# -c 参数表示指定使用哪个配置文件
+# -o 参数表示指定配置文件中的全局变量（覆盖配置文件中的设置）
+# --infer_img 参数指定预测图像路径
+# 其中 infer_img=/ home/aistudio/PaddleDetection/dataset/isdd-datasetvoc/images/ 2 2 5huaheng.jpg 为所用测试图片路径，具体以自己使用测试的图片路径为准
+# 注： 以下命令为一条命令
+python tools/infer.py -c configs/ssd/ssd_mobilenet_v1_300_120e_voc.yml --slim_config configs/slim/quant/ssd_mobilenet_v1_qat.yml -o weights=output/ssd_mobilenet_v1_qat/best_model.pdparams use_gpu=True --infer_img=/home/aistudio/PaddleDetection/dataset/isdd-dataset-voc/images/ca_shang4.jpg --draw_threshold=0.2
+
+三，模型导出
+1执行以下命令
+cd /home/aistudio/PaddleDetection
+
+python tools/export_model.py -c configs/ssd/ssd_mobilenet_v1_300_120e_voc.yml --slim_config configs/slim/quant/ssd_mobilenet_v1_qat.yml -o weights=output/ssd_mobilenet_v1_qat/best_model
+2导出成功后，会出现“PaddleDetection/output_inference”文件夹，进入文件夹可以查看到导出的模型数据。修改infer_cfg.yml里面draw_threshold: 0.2
+
+3在PaddleDetection目录里上传op文件，上传成功后在终端输入以下代码
+chmod +x opt
+
+cd /home/aistudio/PaddleDetection
+
+./opt --model_dir=./output_inference/ssd_mobilenet_v1_qat --valid_targets=intel_fpga,arm --optimize_out_type=naive_buffer --optimize_out=ssd_mobilenet_v1_opt
+
+转换成功后当前目录会出现 ssd_mobilenet_v1_opt.nb 文件，下载模型文件到本地
+
+
+
+-----------------------训练资源说明-------------------------
+硬件环境：
+GPU：Tesla V100
+Video Mem：32GB
+CPU：4 Cores
+RAM：32GB
+Disk：100GB
+
+

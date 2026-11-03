@@ -1,0 +1,16 @@
+[Unit]
+Description=Raspberry Pi robot arm and vacuum control with PL event tracking
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=root
+WorkingDirectory=/home/jetson/Desktop
+Environment=PYTHONUNBUFFERED=1
+ExecStart=/usr/bin/python3 /home/jetson/Desktop/api.py
+Restart=on-failure
+RestartSec=2
+
+[Install]
+WantedBy=multi-user.target

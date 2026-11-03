@@ -1,0 +1,123 @@
+package require -exact qsys 18.1
+
+set_module_property NAME pure_cnn_accel
+set_module_property DISPLAY_NAME "Pure Verilog INT8 CNN Accelerator"
+set_module_property DESCRIPTION "NHWC8 INT8 convolution engine with ping-pong descriptor banks"
+set_module_property VERSION 1.0
+set_module_property GROUP "CCIC/Pure CNN"
+set_module_property AUTHOR "CCIC project"
+set_module_property INTERNAL false
+set_module_property OPAQUE_ADDRESS_MAP true
+set_module_property INSTANTIATE_IN_SYSTEM_MODULE true
+set_module_property EDITABLE true
+
+add_fileset synthesis_fileset QUARTUS_SYNTH ""
+set_fileset_property synthesis_fileset TOP_LEVEL pure_cnn_accel
+add_fileset_file cnn_dot8.v VERILOG PATH cnn_dot8.v
+add_fileset_file pure_cnn_accel.v VERILOG PATH pure_cnn_accel.v TOP_LEVEL_FILE
+
+add_fileset simulation_fileset SIM_VERILOG ""
+set_fileset_property simulation_fileset TOP_LEVEL pure_cnn_accel
+add_fileset_file cnn_dot8.v VERILOG PATH cnn_dot8.v
+add_fileset_file pure_cnn_accel.v VERILOG PATH pure_cnn_accel.v TOP_LEVEL_FILE
+
+add_interface clock clock end
+set_interface_property clock clockRate 0
+set_interface_property clock ENABLED true
+add_interface_port clock clk clk Input 1
+
+add_interface reset reset end
+set_interface_property reset associatedClock clock
+set_interface_property reset synchronousEdges DEASSERT
+set_interface_property reset ENABLED true
+add_interface_port reset reset reset Input 1
+
+add_interface avalon_slave avalon end
+set_interface_property avalon_slave addressUnits WORDS
+set_interface_property avalon_slave associatedClock clock
+set_interface_property avalon_slave associatedReset reset
+set_interface_property avalon_slave bitsPerSymbol 8
+set_interface_property avalon_slave explicitAddressSpan 1024
+set_interface_property avalon_slave holdTime 0
+set_interface_property avalon_slave maximumPendingReadTransactions 0
+set_interface_property avalon_slave maximumPendingWriteTransactions 0
+set_interface_property avalon_slave readLatency 0
+set_interface_property avalon_slave readWaitTime 0
+set_interface_property avalon_slave setupTime 0
+set_interface_property avalon_slave timingUnits Cycles
+set_interface_property avalon_slave writeWaitTime 0
+set_interface_property avalon_slave ENABLED true
+add_interface_port avalon_slave avs_address address Input 8
+add_interface_port avalon_slave avs_write write Input 1
+add_interface_port avalon_slave avs_read read Input 1
+add_interface_port avalon_slave avs_writedata writedata Input 32
+add_interface_port avalon_slave avs_readdata readdata Output 32
+add_interface_port avalon_slave avs_waitrequest waitrequest Output 1
+
+add_interface activation_master avalon start
+set_interface_property activation_master addressUnits SYMBOLS
+set_interface_property activation_master associatedClock clock
+set_interface_property activation_master associatedReset reset
+set_interface_property activation_master bitsPerSymbol 8
+set_interface_property activation_master burstOnBurstBoundariesOnly false
+set_interface_property activation_master burstcountUnits WORDS
+set_interface_property activation_master doStreamReads false
+set_interface_property activation_master doStreamWrites false
+set_interface_property activation_master maximumPendingReadTransactions 1
+set_interface_property activation_master maximumPendingWriteTransactions 0
+set_interface_property activation_master readLatency 0
+set_interface_property activation_master ENABLED true
+add_interface_port activation_master activation_avm_address address Output 32
+add_interface_port activation_master activation_avm_read read Output 1
+add_interface_port activation_master activation_avm_byteenable byteenable Output 8
+add_interface_port activation_master activation_avm_burstcount burstcount Output 5
+add_interface_port activation_master activation_avm_readdata readdata Input 64
+add_interface_port activation_master activation_avm_readdatavalid readdatavalid Input 1
+add_interface_port activation_master activation_avm_waitrequest waitrequest Input 1
+
+add_interface parameter_master avalon start
+set_interface_property parameter_master addressUnits SYMBOLS
+set_interface_property parameter_master associatedClock clock
+set_interface_property parameter_master associatedReset reset
+set_interface_property parameter_master bitsPerSymbol 8
+set_interface_property parameter_master burstOnBurstBoundariesOnly false
+set_interface_property parameter_master burstcountUnits WORDS
+set_interface_property parameter_master doStreamReads false
+set_interface_property parameter_master doStreamWrites false
+set_interface_property parameter_master maximumPendingReadTransactions 1
+set_interface_property parameter_master maximumPendingWriteTransactions 0
+set_interface_property parameter_master readLatency 0
+set_interface_property parameter_master ENABLED true
+add_interface_port parameter_master parameter_avm_address address Output 32
+add_interface_port parameter_master parameter_avm_read read Output 1
+add_interface_port parameter_master parameter_avm_byteenable byteenable Output 8
+add_interface_port parameter_master parameter_avm_burstcount burstcount Output 5
+add_interface_port parameter_master parameter_avm_readdata readdata Input 64
+add_interface_port parameter_master parameter_avm_readdatavalid readdatavalid Input 1
+add_interface_port parameter_master parameter_avm_waitrequest waitrequest Input 1
+
+add_interface output_master avalon start
+set_interface_property output_master addressUnits SYMBOLS
+set_interface_property output_master associatedClock clock
+set_interface_property output_master associatedReset reset
+set_interface_property output_master bitsPerSymbol 8
+set_interface_property output_master burstOnBurstBoundariesOnly false
+set_interface_property output_master burstcountUnits WORDS
+set_interface_property output_master doStreamReads false
+set_interface_property output_master doStreamWrites false
+set_interface_property output_master maximumPendingReadTransactions 0
+set_interface_property output_master maximumPendingWriteTransactions 1
+set_interface_property output_master ENABLED true
+add_interface_port output_master output_avm_address address Output 32
+add_interface_port output_master output_avm_write write Output 1
+add_interface_port output_master output_avm_writedata writedata Output 64
+add_interface_port output_master output_avm_byteenable byteenable Output 8
+add_interface_port output_master output_avm_burstcount burstcount Output 5
+add_interface_port output_master output_avm_waitrequest waitrequest Input 1
+
+add_interface irq interrupt start
+set_interface_property irq associatedClock clock
+set_interface_property irq associatedReset reset
+set_interface_property irq associatedAddressablePoint avalon_slave
+set_interface_property irq ENABLED true
+add_interface_port irq irq irq Output 1

@@ -1,0 +1,61 @@
+# ===== Quartus 构建产物（可重新生成，体积大）=====
+db/
+incremental_db/
+output_files/
+simulation/
+.qsys_edit/
+*.qdb
+*.qws
+*.qxp
+*.qarlog
+*.rpt
+*.sof
+*.rbf
+*.jdi
+*.smsg
+*.bak
+*.qdf
+
+# ===== 仿真工具中间文件 =====
+work/
+transcript
+*.vo
+*.vho
+*.wlf
+
+# ===== 模型权重 / 数据集 / 量化产物 =====
+model/output/
+model/isdd-dataset-voc/
+model/vdl_log/
+*.pdparams
+*.pdopt
+*.pdiparams
+*.pdmodel
+*.nb
+*.bin
+*.onnx
+
+# ===== 板卡镜像与二进制库 =====
+镜像文件/
+*.img
+*.so
+*.so.*
+*.a
+*.tar.gz
+*.zip
+*.exe
+*.7z
+
+# ===== 编译中间件 =====
+*.o
+*.obj
+*.pyc
+__pycache__/
+
+# ===== 编辑器 / 系统 =====
+.vscode/
+.idea/
+*.swp
+.DS_Store
+Thumbs.db
+*.log

@@ -1,0 +1,15 @@
+[Unit]
+Description=C5MB pure-Verilog CNN inference and PL sorting gateway
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=root
+WorkingDirectory=/opt/pure_cnn_gateway
+ExecStart=/opt/pure_cnn_gateway/run_pure_cnn_gateway.sh
+Restart=on-failure
+RestartSec=2
+
+[Install]
+WantedBy=multi-user.target

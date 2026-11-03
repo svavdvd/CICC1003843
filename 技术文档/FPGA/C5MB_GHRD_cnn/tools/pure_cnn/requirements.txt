@@ -1,0 +1,3 @@
+numpy>=1.24
+protobuf>=4.21
+grpcio-tools>=1.54

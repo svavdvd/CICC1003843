@@ -1,0 +1,16 @@
+
+
+D:/C5MB_GHRD/ip/pll_tv.v
+
+Nov 17 12AM:34:24>: Megafunction PLL Intel FPGA IP v18.1 is not listed in any 
+wizard.lst file in the specified library path(s).Wizard launch aborted
+
+D:/C5MB_GHRD/ip/pll_tv.v
+
+Nov 17 12AM:34:46>: Megafunction PLL Intel FPGA IP v18.1 is not listed in any 
+wizard.lst file in the specified library path(s).Wizard launch aborted
+
+D:/C5MB_GHRD/ip/pll_tv.v
+
+Nov 17 12AM:34:53>: Megafunction PLL Intel FPGA IP v18.1 is not listed in any 
+wizard.lst file in the specified library path(s).Wizard launch aborted

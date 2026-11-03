@@ -1,0 +1,20 @@
+# 统一换行：默认按文本处理，检出时保持 LF（Linux 构建脚本必须 LF）
+* text=auto eol=lf
+
+*.sh    text eol=lf
+*.ps1   text eol=crlf
+*.cc    text eol=lf
+*.h     text eol=lf
+*.hpp   text eol=lf
+*.v     text eol=lf
+*.tcl   text eol=lf
+*.py    text eol=lf
+Makefile text eol=lf
+
+*.pptx binary
+*.docx binary
+*.png   binary
+*.jpg   binary
+*.bin   binary
+*.so    binary
+*.a     binary
